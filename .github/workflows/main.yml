@@ -1,0 +1,20 @@
+name: Live Stream Goku
+
+on:
+  workflow_dispatch: # Esto activa el botón para que tú lo enciendas
+  schedule:
+    - cron: '0 */6 * * *' # Esto hace que se reinicie solo cada 6 horas
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Instalar FFmpeg
+        run: sudo apt update && sudo apt install ffmpeg -y
+
+      - name: Iniciar Transmision
+        run: |
+          ffmpeg -re -stream_loop -1 -i "video.mp4" -c:v libx264 -preset superfast -b:v 2500k -maxrate 2500k -bufsize 5000k -pix_fmt yuv420p -g 60 -c:a aac -b:a 128k -ar 44100 -f flv "rtmp://a.rtmp.youtube.com/live2/${{ secrets.STREAM_KEY }}"
